@@ -1,15 +1,224 @@
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.db.models import Max
+from django.utils import timezone
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import reverse
 
-from .models import User
+from .models import User, Category, Auction, Bid, Comment
+from .forms import MakeBid, AddComment, EditAuction, CreateNew
 
 
 def index(request):
-    return render(request, "auctions/index.html")
+    active = Auction.objects.filter(active=True).all()
+    return render(request, "auctions/index.html", {
+        'active': active
+    })
 
+def listing(request, title):
+    listing = Auction.objects.get(title=title)
+    if not listing:
+        return HttpResponseRedirect(reverse('index'))
+
+    if timezone.now() >= listing.expires:
+        listing.active = False
+        listing.save()
+
+    count = Bid.objects.filter(listing=listing).count()
+    comments = Comment.objects.filter(listing=listing).all().order_by('-id')
+
+    form = MakeBid()
+    commentForm = AddComment()
+    return render(request, "auctions/listing.html", {
+        'listing': listing,
+        'count': count,
+        'comments': comments,
+        'form': form,
+        'commentForm': commentForm
+    })
+        
+
+@login_required
+def AddBid(request, title):
+    listing = Auction.objects.get(title=title)
+    if not listing:
+        return HttpResponseRedirect(reverse('index'))
+
+    if request.method == "POST":
+        form = MakeBid(request.POST)
+        if form.is_valid():
+            bid = form.cleaned_data["amount"]
+            try:
+                b = Bid.objects.create(
+                    user=request.user,
+                    listing=listing,
+                    bid=bid
+                )
+                b.save()
+                print("Saved Bid")
+            except:
+                print("Error, unable to save comment")
+    return redirect('listing', title)
+
+
+@login_required
+def CommentAdd(request, title):
+    listing = Auction.objects.get(title=title)
+    if not listing:
+        return HttpResponseRedirect(reverse('index'))
+
+    if request.method == "POST":
+        form = AddComment(request.POST)
+        if form.is_valid():
+            comment = form.cleaned_data["comment"]
+            try:
+                c = Comment.objects.create(
+                    user=request.user,
+                    listing=listing,
+                    comment=comment
+                )
+                c.save()
+                print("Saved Comment")
+            except:
+                print("Error, unable to save comment")
+    return redirect('listing', title)
+
+@login_required
+def edit_list(request, title):
+    listing = Auction.objects.get(title=title)
+    if not listing:
+        print("No Listing")
+        return HttpResponseRedirect(reverse('index'))
+            
+    if request.user != listing.user:
+        print("Doesnt match")
+        return redirect('listing', title)
+
+    bids = Bid.objects.filter(listing=listing).all()
+    highest_bid = Bid.objects.filter(listing=listing).all().aggregate(Max('bid'))
+    form = EditAuction(initial={
+        'title': listing.title,
+        'desc': listing.desc,
+        'imgsrc': 'https://placehold.it/1080x720/',
+        'active': listing.active,
+        'expires': listing.expires
+    })
+
+
+    if request.method == "POST":
+        form = EditAuction(request.POST)  
+        if form.is_valid():
+            t = form.cleaned_data["title"]
+            desc = form.cleaned_data["desc"]
+            active = form.cleaned_data["active"]
+            expires = form.cleaned_data["expires"]
+            imgsrc = form.cleaned_data["imgsrc"]  
+
+            if t != title:
+                if Auction.objects.get(title=t):
+                    return render(request, "auctions/edit.html", {
+                        'listing': listing,
+                        'bids': bids,
+                        'highest_bid': highest_bid,
+                        'form': form,
+                        'message': 'Title is not unique'
+                    })
+            
+            if timezone.now() >= expires:
+                return render(request, "auctions/edit.html", {
+                    'listing': listing,
+                    'bids': bids,
+                    'highest_bid': highest_bid,
+                    'form': form,
+                    'message': 'Expiration Date is set to past'
+                })
+
+            listing.title = t
+            listing.desc = desc
+            listing.active = active
+            listing.expires = expires
+            listing.imgsrc = imgsrc
+            listing.save()
+                   
+
+        return redirect('listing', title)
+        
+    return render(request, "auctions/edit.html", {
+        'listing': listing,
+        'bids': bids,
+        'highest_bid': highest_bid,
+        'form': form
+    })
+
+def categories(request):
+    cate = Category.objects.all()
+    return render(request, "auctions/categories.html", {
+        'cate': cate
+    })
+
+def list_cate(request, cate):
+    c = Auction.objects.filter(category=cate).all()
+    if not c:
+        return redirect('index')
+
+    return render(request, "auctions/list_category.html", {
+        'items': c
+    })
+
+@login_required
+def new(request):
+    if request.method == "POST":
+        form = CreateNew(request.POST)
+        if form.is_valid():
+            user = request.user
+            title = form.cleaned_data["title"]
+            desc = form.cleaned_data["desc"]
+            active = form.cleaned_data["active"]
+            expires = form.cleaned_data["expires"]
+            category = form.cleaned_data["category"]
+            price = form.cleaned_data["price"]
+
+            if Auction.objects.get(title=title):
+                return render(request, "auctions/new.html", {
+                    'form': form,
+                    'message': 'Title Already Exists'
+                })
+
+            if timezone.now() > expires:
+                return render(request, "auctions/new.html", {
+                    'form': form,
+                    'message': 'Expiration Date is set in the past'
+                })
+
+            try:
+                l = Auction.objects.create(
+                    user=user,
+                    title=title,
+                    desc=desc,
+                    category=category,
+                    price=price,
+                    active=active,
+                    expires=expires
+                )
+                l.save()
+            except:
+                print("Unable to Save")
+                return render(request, "auctions/new.html", {
+                    'form': form,
+                    'message': 'Unable to save new listing'
+                })
+
+            return redirect('listing', title)
+
+    form = CreateNew()
+    return render(request, "auctions/new.html", {
+        'form': form
+    })
+
+
+# Authentication System
 
 def login_view(request):
     if request.method == "POST":
@@ -31,6 +240,7 @@ def login_view(request):
         return render(request, "auctions/login.html")
 
 
+@login_required
 def logout_view(request):
     logout(request)
     return HttpResponseRedirect(reverse("index"))

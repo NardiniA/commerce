@@ -3,5 +3,13 @@
 {% block body %}
     <h2>Active Listings</h2>
 
-    TODO
+    <ul>
+        {% for a in active %}
+            <li>
+                <a href = "{% url 'listing' a.title %}">{{ a.title }}</a>
+            </li>
+        {% empty %}
+            <li>No Active Listings</li>
+        {% endfor %}
+    </ul>
 {% endblock %}
