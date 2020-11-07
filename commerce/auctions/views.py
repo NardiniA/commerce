@@ -225,6 +225,18 @@ def new(request):
     })
 
 
+@login_required
+def profile(request):
+    user = request.user
+    active_listings = Auction.objects.filter(user=user, active=True).all()
+    all_listings = Auction.objects.filter(user=user).all()
+
+    return render(request, "auctions/profile.html", {
+        'active_listings': active_listings,
+        'all_listings': all_listings
+    })
+
+
 # Authentication System
 
 def login_view(request):

@@ -1,0 +1,104 @@
+{% extends "auctions/layout.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-9 col-md-6 m-0 text-center p-2">
+            <button type="button" data-show="active">Active Listings</button>
+            <button type="button" data-show="all">All Listings</button>
+
+            <div id="active">
+                {% for a in active_listings %}
+                    <a class="card my-3 text-dark text-decoration-none" href = "{% url 'listing' a.title %}">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4 col-sm-12">
+                                    <img src = "{{ a.imageURL }}" alt = "Product Image" class = "img-fluid" />
+                                </div>
+                                <div class="col-md-8 col-sm-12">
+                                    <h1>{{ a.title }}</h1>
+                                    <p>{{ a.desc }}</p>
+
+                                    <h3>Guide Price: £{{ a.price|floatformat:2 }}</h3>
+
+                                    <ul class = "list-unstyled my-4">
+                                        <li>Active: {{ a.active }}</li>
+                                        <li>Expires: {{ a.expires }}</li>
+                                    </ul>
+
+                                    <p class = "btn btn-primary btn-lg">Click here to go to Listing</p>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                {% empty %}
+                    <h1>No Active Listings</h1>
+                {% endfor %}
+            </div>
+            <div id="all d-none">
+                {% for l in all_listings %}
+                    <a class="card my-3 text-dark text-decoration-none" href="{% url 'listing' l.title %}">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4 col-sm-12">
+                                    <img src="{{ l.imageURL }}" alt="Product Image" class="img-fluid" />
+                                </div>
+                                <div class="col-md-8 col-sm-12">
+                                    <h1>{{ l.title }}</h1>
+                                    <p>{{ l.desc }}</p>
+                    
+                                    <h3>Guide Price: £{{ l.price|floatformat:2 }}</h3>
+                    
+                                    <ul class="list-unstyled my-4">
+                                        <li>Active: {{ l.active }}</li>
+                                        <li>Expires: {{ l.expires }}</li>
+                                    </ul>
+                    
+                                    <p class="btn btn-primary btn-lg">Click here to go to Listing</p>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                {% empty %}
+                    <h1>No Active Listings</h1>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 m-0 bg-light p-2">
+            <div class="container">
+
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function showDiv(div) {
+        let all = document.querySelector('#all');
+        let active = document.querySelector('#active');
+
+        if (!all.classList.contains('d-none')) {
+            all.classList.add('d-none');
+        }
+
+        if (!active.classList.contains('d-none')) {
+            active.classList.add('d-none');
+        }
+
+        document.querySelector(`#${div}`).classList.remove('d-none');
+    }
+
+    let btns = document.querySelector('button');
+    btns.forEach(button => {
+        button.onClick() {
+            showDiv(this.dataset.show);
+        }
+    })
+
+    
+</script>
+{% endblock %}
