@@ -8,8 +8,6 @@ class AddComment(forms.Form):
     comment = forms.CharField(max_length=500)
 
 class EditAuction(forms.Form):
-    imgsrc = forms.CharField(max_length=200, required=True, label="Image Source", widget=forms.TextInput(
-        attrs={'class': 'form-control', 'placeholder': 'Image Source...'}))
     title = forms.CharField(max_length=100, required=True, label="Title", widget=forms.TextInput(
         attrs={'class': 'form-control', 'placeholder': 'Title...'}))
     desc = forms.CharField(max_length=500, required=True, label="Description", widget=forms.Textarea(
@@ -17,7 +15,8 @@ class EditAuction(forms.Form):
     active = forms.BooleanField(label="Active", widget=forms.CheckboxInput(
         attrs={'class': 'form-check', 'placeholder': 'Active...'}))
     expires = forms.DateTimeField(label="Expires", widget=forms.TextInput(
-        attrs={'class': 'form-control', 'placeholder': 'Expires...'}))
+        attrs={'class': 'form-control', 'placeholder': '1970-01-20 15:00:00'}))
+    img = forms.ImageField(label="Image")
 
     class Meta:
         fields = ('imgsrc', 'title', 'desc', 'active', 'expires')
@@ -40,11 +39,12 @@ class CreateNew(forms.Form):
     active = forms.BooleanField(label="Active", widget=forms.CheckboxInput(
         attrs={'placeholder': 'Active...'}))
     expires = forms.DateTimeField(label="Expires", required=True, widget=forms.TextInput(
-        attrs={'placeholder': 'Expires...'}))
+        attrs={'placeholder': '1970-01-20 15:00:00'}))
     price = forms.CharField(label="Listed Price", required=True, widget=forms.NumberInput(attrs={
         'placeholder': 'Listed Price...'}))
     category = forms.CharField(
         label="Category", required=True, widget=forms.Select(choices=choice_list))
+    img = forms.ImageField(label="Image", required=False)
 
     class Meta:
         fields = ('title', 'desc', 'active', 'expires')

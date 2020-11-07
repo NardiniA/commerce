@@ -4,6 +4,9 @@
 {% block body %}
     <div class="container">
         <h2>Create New Listing</h2>
+        {% if message %}
+            <div class="alert alert-danger font-weight-bold">{{ message }}</div>
+        {% endif %}
         <form method="POST">
             {% csrf_token %}
             {{ form|crispy }}

@@ -1,5 +1,6 @@
 {% extends "auctions/layout.html" %}
 {% load crispy_forms_tags %}
+{% load static %}
 
 {% block body %}
 <div class="container-fluid">
@@ -10,10 +11,10 @@
         {% csrf_token %}
         <div class="row">
             <div class="col-lg-9 col-md-6 m-0 text-center p-2">
-                <img src="https://placehold.it/1080x720/" alt="Image Placeholder" class="img-fluid" />
-                <div class="form-group my-4">
-                    {{ form.imgsrc.label }}:
-                    {{ form.imgsrc }}
+                <img src="{{ listing.imageURL }}" alt="Image Placeholder" class="img-fluid" />
+                <div class="form-group my-4 text-center">
+                    <p>Current Image: <span class="text-primary">{{ listing.imageURL }}</span></p>
+                    {{ form.img }}
                 </div>
             </div>
             <div class="col-lg-3 col-md-6 m-0 bg-light p-2">

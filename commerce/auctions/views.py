@@ -101,20 +101,19 @@ def edit_list(request, title):
     form = EditAuction(initial={
         'title': listing.title,
         'desc': listing.desc,
-        'imgsrc': 'https://placehold.it/1080x720/',
         'active': listing.active,
         'expires': listing.expires
     })
 
 
     if request.method == "POST":
-        form = EditAuction(request.POST)  
+        form = EditAuction(request.POST, request.FILES)  
         if form.is_valid():
             t = form.cleaned_data["title"]
             desc = form.cleaned_data["desc"]
             active = form.cleaned_data["active"]
             expires = form.cleaned_data["expires"]
-            imgsrc = form.cleaned_data["imgsrc"]  
+            img = request.FILES["img"]
 
             if t != title:
                 if Auction.objects.get(title=t):
@@ -139,7 +138,7 @@ def edit_list(request, title):
             listing.desc = desc
             listing.active = active
             listing.expires = expires
-            listing.imgsrc = imgsrc
+            listing.img = img
             listing.save()
                    
 
@@ -170,17 +169,18 @@ def list_cate(request, cate):
 @login_required
 def new(request):
     if request.method == "POST":
-        form = CreateNew(request.POST)
+        form = CreateNew(request.POST, request.FILES)
+        print(request.FILES)
         if form.is_valid():
-            user = request.user
             title = form.cleaned_data["title"]
             desc = form.cleaned_data["desc"]
             active = form.cleaned_data["active"]
             expires = form.cleaned_data["expires"]
             category = form.cleaned_data["category"]
             price = form.cleaned_data["price"]
+            img = request.FILES["img"]
 
-            if Auction.objects.get(title=title):
+            if Auction.objects.filter(title=title):
                 return render(request, "auctions/new.html", {
                     'form': form,
                     'message': 'Title Already Exists'
@@ -193,16 +193,18 @@ def new(request):
                 })
 
             try:
-                l = Auction.objects.create(
-                    user=user,
+                new = Auction.objects.create(
+                    user=request.user,
                     title=title,
                     desc=desc,
                     category=category,
                     price=price,
                     active=active,
-                    expires=expires
+                    expires=expires,
+                    img=img
                 )
-                l.save()
+                new.save()
+                print("Hello")
             except:
                 print("Unable to Save")
                 return render(request, "auctions/new.html", {
@@ -211,6 +213,11 @@ def new(request):
                 })
 
             return redirect('listing', title)
+
+        return render(request, "auctions/new.html", {
+            'form': form,
+            'message': 'Form Not Valid'
+        })
 
     form = CreateNew()
     return render(request, "auctions/new.html", {
