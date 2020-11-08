@@ -42,7 +42,7 @@
                         </div>
                     </div>
                 {% empty %}
-                    <h1>No Active Listings</h1>
+                    <h1 class = "my-4">No Active Listings</h1>
                 {% endfor %}
             </div>
             <div id="all" class = "d-none">
@@ -75,7 +75,7 @@
                         </div>
                     </div>
                 {% empty %}
-                    <h1>No Active Listings</h1>
+                    <h1 class = "my-4">No Active Listings</h1>
                 {% endfor %}
             </div>
         </div>
@@ -97,8 +97,25 @@
 
                 <h4>Watchlist</h4>
 
-
-
+                {% for w in watchlist %}
+                    <div  class="card my-2">
+                        <div class="card-body p-1 bg-transparent">
+                            <div class="row">
+                                <div class="col-lg-4 col-md-12">
+                                    <a href="{% url 'listing' w.auction %}">{{ w.auction }}</a>
+                                </div>
+                                <div class="col-lg-4 col-md-12">
+                                    Active: {{ w.auction.active }}
+                                </div>
+                                <div class="col-lg-4 col-md-12">
+                                    <a href="{% url 'remove_watchlist' w.auction %}" class="btn btn-danger btn-sm">Remove</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p>No Auctions being watched</p>
+                {% endfor %}
             </div>
         </div>
     </div>

@@ -1,15 +1,38 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <h2>Active Listings</h2>
+    <div class="my-4">
+        <h1 class="text-center">Listings</h1>
 
-    <ul>
-        {% for a in active %}
-            <li>
-                <a href = "{% url 'listing' a.title %}">{{ a.title }}</a>
-            </li>
-        {% empty %}
-            <li>No Active Listings</li>
-        {% endfor %}
-    </ul>
+        <div class="container-fluid">
+            {% for a in active %}
+                <a href ="{% url 'listing' a.title %}" class="card my-4 text-primary active-card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 col-sm-12 m-0">
+                                <img src="{{ a.imageURL }}" alt="Product Image" class="img-fluid" />
+                            </div>
+                            <div class="col-md-8 col-sm-12 m-0">
+                                <h1>{{ a.title }}</h1>
+                                <p>{{ a.desc }}</p>
+                                
+                                <h3>Guide Price: £{{ a.price|floatformat:2 }}</h3>
+                                
+                                <ul class="list-unstyled my-4">
+                                    <li>Active: {{ a.active }}</li>
+                                    <li>Expires: {{ a.expires }}</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            {% empty %}
+                <div class="card">
+                    <div class="card-body">
+                        <h2>No Active Listings</h2>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
 {% endblock %}

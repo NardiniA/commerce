@@ -1,15 +1,23 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <h2>Categories</h2>
-
-    <ul>
-        {% for c in cate %}
-            <li>
-                <a href="{% url 'list_cate' c.name %}">{{ c.name }}</a>
-            </li>
-        {% empty %}
-            <li>No Categories</li>
-        {% endfor %}
-    </ul>
+    <div class="my-4">
+        <h2 class="text-center">All Categories</h2>
+    
+        <div class="container-fluid">
+            {% for c in cate %}
+            <a href="{% url 'list_cate' c.name %}" class="card my-4 text-primary active-card">
+                <div class="card-body">
+                    <h3>{{ c.name }}</h3>
+                </div>
+            </a>
+            {% empty %}
+            <div class="card">
+                <div class="card-body">
+                    <h2>No Active Listings</h2>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
 {% endblock %}

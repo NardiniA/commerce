@@ -7,7 +7,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse
 
-from .models import User, Category, Auction, Bid, Comment
+from .models import User, Category, Auction, Bid, Comment, WatchList
 from .forms import MakeBid, AddComment, EditAuction, CreateNew
 
 
@@ -163,7 +163,8 @@ def list_cate(request, cate):
         return redirect('index')
 
     return render(request, "auctions/list_category.html", {
-        'items': c
+        'items': c,
+        'category': cate
     })
 
 @login_required
@@ -223,6 +224,40 @@ def new(request):
         'form': form
     })
 
+@login_required
+def watchlist_add(request, title):
+    listing = Auction.objects.get(title=title)
+    if not listing:
+        return HttpResponseRedirect(reverse('index'))
+
+    if WatchList.objects.get(auction=listing):
+        return redirect('listing', title)
+
+    try:
+        w = WatchList.objects.create(
+            user=request.user,
+            auction=listing
+        )
+        w.save()
+    except:
+        print("Error Unable to save to watchlist")
+        return redirect('listing', title)
+    return redirect('listing', title)
+
+
+def watchlist_remove(request, title):
+    listing = Auction.objects.get(title=title)
+    if not listing:
+        return HttpResponseRedirect(reverse('index'))
+
+    try:
+        d = WatchList.objects.filter(auction=listing).first()
+        d.delete()
+    except:
+        print("Error Unable to delete to watchlist")
+        return redirect('profile')
+    return redirect('profile')
+
 
 @login_required
 def profile(request):
@@ -230,9 +265,15 @@ def profile(request):
     active_listings = Auction.objects.filter(user=user, active=True).all()
     all_listings = Auction.objects.filter(user=user).all()
 
+    if not active_listings and all_listings:
+        return redirect('index')
+
+    watchlist = WatchList.objects.filter(user=user).all()
+
     return render(request, "auctions/profile.html", {
         'active_listings': active_listings,
-        'all_listings': all_listings
+        'all_listings': all_listings,
+        'watchlist': watchlist
     })
 
 
