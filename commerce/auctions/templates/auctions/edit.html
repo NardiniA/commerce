@@ -7,7 +7,7 @@
     {% if message %}
         <div class="alert alert-danger">{{ message }}</div>
     {% endif %}
-    <form method = "POST" name = "edit" id = "edit">
+    <form method = "POST" name = "edit" id = "edit" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="row">
             <div class="col-lg-9 col-md-6 m-0 text-center p-2">

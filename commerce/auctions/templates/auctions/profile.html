@@ -6,40 +6,48 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-lg-9 col-md-6 m-0 text-center p-2">
-            <button type="button" data-show="active">Active Listings</button>
-            <button type="button" data-show="all">All Listings</button>
+            <div class="btn-group" role="group" aria-label="btnGroup">
+                <button type="button" id="activebtn" class = "btn btn-secondary">Active Listings</button>
+                <button type="button" id="allbtn" class = "btn btn-secondary">All Listings</button>
+            </div>
 
             <div id="active">
                 {% for a in active_listings %}
-                    <a class="card my-3 text-dark text-decoration-none" href = "{% url 'listing' a.title %}">
+                    <div class="card my-3 text-dark text-decoration-none">
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-4 col-sm-12">
-                                    <img src = "{{ a.imageURL }}" alt = "Product Image" class = "img-fluid" />
+                                    <img src="{{ a.imageURL }}" alt="Product Image" class="img-fluid" />
                                 </div>
                                 <div class="col-md-8 col-sm-12">
                                     <h1>{{ a.title }}</h1>
                                     <p>{{ a.desc }}</p>
-
+                    
                                     <h3>Guide Price: £{{ a.price|floatformat:2 }}</h3>
-
-                                    <ul class = "list-unstyled my-4">
+                    
+                                    <ul class="list-unstyled my-4">
                                         <li>Active: {{ a.active }}</li>
                                         <li>Expires: {{ a.expires }}</li>
                                     </ul>
-
-                                    <p class = "btn btn-primary btn-lg">Click here to go to Listing</p>
+                    
+                                    <div class="row m-0">
+                                        <a class="btn btn-primary mx-1 col" href="{% url 'listing' a.title %}">Click here to go to
+                                            Listing</a>
+                    
+                                        <a class="btn btn-warning mx-1 col" href="{% url 'edit' a.title %}">Edit Listing</a>
+                                    </div>
+                    
                                 </div>
                             </div>
                         </div>
-                    </a>
+                    </div>
                 {% empty %}
                     <h1>No Active Listings</h1>
                 {% endfor %}
             </div>
-            <div id="all d-none">
+            <div id="all" class = "d-none">
                 {% for l in all_listings %}
-                    <a class="card my-3 text-dark text-decoration-none" href="{% url 'listing' l.title %}">
+                    <div class="card my-3 text-dark text-decoration-none">
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-4 col-sm-12">
@@ -55,21 +63,42 @@
                                         <li>Active: {{ l.active }}</li>
                                         <li>Expires: {{ l.expires }}</li>
                                     </ul>
-                    
-                                    <p class="btn btn-primary btn-lg">Click here to go to Listing</p>
+                                    
+                                    <div class="row m-0">
+                                        <a class="btn btn-primary mx-1 col" href="{% url 'listing' l.title %}">Click here to go to Listing</a>
+
+                                        <a class="btn btn-warning mx-1 col" href="{% url 'edit' l.title %}">Edit Listing</a>
+                                    </div>
+                                    
                                 </div>
                             </div>
                         </div>
-                    </a>
+                    </div>
                 {% empty %}
                     <h1>No Active Listings</h1>
                 {% endfor %}
             </div>
         </div>
         <div class="col-lg-3 col-md-6 m-0 bg-light p-2">
-            <div class="container">
-
+            <div class="container text-center p-4">
+                <h3>Username: <span class="font-w-300">{{ request.user.username }}</span></h3>
                 
+                <hr />
+
+                <div class="text-left">
+                    <h5>Email: <span class="font-w-300">{{ request.user.email }}</span></h5>
+                    <br />
+                    <h5>Date Joined: <span class="font-w-300">{{ request.user.date_joined }}</span></h5>
+                    <br />
+                    <h5>Last Logged In: <span class="font-w-300">{{ request.user.last_login }}</span></h5>
+                </div>
+                
+                <hr />
+
+                <h4>Watchlist</h4>
+
+
+
             </div>
         </div>
     </div>
@@ -77,28 +106,27 @@
 
 
 <script>
-    function showDiv(div) {
-        let all = document.querySelector('#all');
-        let active = document.querySelector('#active');
+    let allbtn = document.querySelector('#allbtn');
+    let activebtn = document.querySelector('#activebtn');
 
+    let all = document.querySelector('#all');
+    let active = document.querySelector('#active');
+
+    allbtn.addEventListener('click', function() {
+        if (all.classList.contains('d-none')) {
+            all.classList.remove('d-none');
+        }
+        if (!active.classList.contains('d-none')) {
+             active.classList.add('d-none');
+        }
+    });
+    activebtn.addEventListener('click', function() {
+        if (active.classList.contains('d-none')) {
+            active.classList.remove('d-none');
+        }
         if (!all.classList.contains('d-none')) {
             all.classList.add('d-none');
         }
-
-        if (!active.classList.contains('d-none')) {
-            active.classList.add('d-none');
-        }
-
-        document.querySelector(`#${div}`).classList.remove('d-none');
-    }
-
-    let btns = document.querySelector('button');
-    btns.forEach(button => {
-        button.onClick() {
-            showDiv(this.dataset.show);
-        }
-    })
-
-    
+    });
 </script>
 {% endblock %}

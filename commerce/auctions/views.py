@@ -170,7 +170,6 @@ def list_cate(request, cate):
 def new(request):
     if request.method == "POST":
         form = CreateNew(request.POST, request.FILES)
-        print(request.FILES)
         if form.is_valid():
             title = form.cleaned_data["title"]
             desc = form.cleaned_data["desc"]

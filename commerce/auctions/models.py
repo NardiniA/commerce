@@ -25,7 +25,7 @@ class Auction(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=100, unique=True)
     desc = models.CharField(max_length=500)
-    img = models.ImageField()
+    img = models.ImageField(default="/static/images/placeholder.png")
     category = models.CharField(max_length=50, choices=categories)
     price = models.FloatField(default=50.00)
     active = models.BooleanField(default=True)

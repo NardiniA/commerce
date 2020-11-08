@@ -10,3 +10,7 @@ body {
 .textarea {
     resize: none;
 }
+
+.font-w-300 {
+    font-weight: 300;
+}

@@ -7,7 +7,7 @@
         {% if message %}
             <div class="alert alert-danger font-weight-bold">{{ message }}</div>
         {% endif %}
-        <form method="POST">
+        <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             {{ form|crispy }}
             <button type="submit" class = "btn btn-success w-100">Save</button>

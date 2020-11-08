@@ -12,11 +12,11 @@ class EditAuction(forms.Form):
         attrs={'class': 'form-control', 'placeholder': 'Title...'}))
     desc = forms.CharField(max_length=500, required=True, label="Description", widget=forms.Textarea(
         attrs={'class': 'form-control ta', 'placeholder': 'Description...'}))
-    active = forms.BooleanField(label="Active", widget=forms.CheckboxInput(
-        attrs={'class': 'form-check', 'placeholder': 'Active...'}))
+    active = forms.BooleanField(label="Active", required=False, widget=forms.CheckboxInput(
+        attrs={'placeholder': 'Active...', 'class': 'form-check'}))
     expires = forms.DateTimeField(label="Expires", widget=forms.TextInput(
         attrs={'class': 'form-control', 'placeholder': '1970-01-20 15:00:00'}))
-    img = forms.ImageField(label="Image")
+    img = forms.ImageField(label="Image", required=True)
 
     class Meta:
         fields = ('imgsrc', 'title', 'desc', 'active', 'expires')
@@ -44,7 +44,7 @@ class CreateNew(forms.Form):
         'placeholder': 'Listed Price...'}))
     category = forms.CharField(
         label="Category", required=True, widget=forms.Select(choices=choice_list))
-    img = forms.ImageField(label="Image", required=False)
+    img = forms.ImageField(label="Image", required=True)
 
     class Meta:
         fields = ('title', 'desc', 'active', 'expires')
